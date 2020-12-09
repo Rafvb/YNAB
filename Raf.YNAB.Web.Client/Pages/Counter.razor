@@ -1,0 +1,28 @@
+@page "/counter"
+
+@inject IJSRuntime js
+
+@using System.IO;
+
+<h3>Upload Fortis csv file</h3>
+
+<p>
+    <InputFile OnChange="@OnInputFileChange" />
+</p>
+
+@code {
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var fileStream = e.File.OpenReadStream();
+        var streamReader = new StreamReader(fileStream);
+        var inputFile = await streamReader.ReadToEndAsync();
+
+        inputFile = inputFile.Replace(@"\n", "\n");
+
+        var outputFile = FortisParser.parse(inputFile);
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(outputFile);
+
+        await js.InvokeAsync<object>("saveAsFile", "YNAB.csv", Convert.ToBase64String(bytes));
+    }
+}
