@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
-    <title>Raf.YNAB.Web.Client</title>
+    <title>Raf's YNAB utilities</title>
 
     <base href="/" />
 
@@ -31,7 +31,9 @@
             link.download = filename;
             link.href = "data:application/octet-stream;base64," + bytesBase64;
             document.body.appendChild(link); // Needed for Firefox
+
             link.click();
+
             document.body.removeChild(link);
         }
     </script>

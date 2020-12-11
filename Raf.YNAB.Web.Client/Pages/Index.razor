@@ -1,7 +1,45 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
+@inject IJSRuntime js
 
-Welcome to your new app.
+@using System.IO;
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+<h1>📄 Fortis to YNAB csv parser</h1>
+<p>
+    Converts a Fortis csv export into the YNAB csv format.
+</p>
+
+@if (!isProcessing)
+{
+    <p>
+        <InputFile OnChange="@OnInputFileChange" />
+    </p>
+}
+else
+{
+    <p>🔨 Working on it...</p>
+}
+
+@code {
+    private bool isProcessing;
+
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var fileStream = e.File.OpenReadStream();
+        var streamReader = new StreamReader(fileStream);
+        var inputFile = await streamReader.ReadToEndAsync();
+
+        isProcessing = true;
+
+        var outputFile = FortisParser.parse(inputFile);
+
+        var bytes = System.Text.Encoding.UTF8.GetBytes(outputFile);
+
+        var fileName = $"YNAB-{DateTime.Now:yyyyMMdd}.csv";
+
+        await js.InvokeAsync<object>("saveAsFile", fileName, Convert.ToBase64String(bytes));
+
+        isProcessing = false;
+    }
+}
+
